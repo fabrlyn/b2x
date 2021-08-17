@@ -1,4 +1,4 @@
-use std::{error::Error, io::Write, iter};
+use std::error::Error;
 
 use prettytable::{Cell, Row, Table};
 
