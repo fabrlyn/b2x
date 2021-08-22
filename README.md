@@ -4,10 +4,10 @@
 
 ### Binary input
 
-- [ ] Parse big endian
-- [ ] Parse little endian
-- [ ] Parse as signed
-- [ ] Parse as float64
+- [x] Parse big endian
+- [x] Parse little endian
+- [x] Parse as signed
+- [x] Parse as float
 - [ ] Choose grouping (2 bits, 4 bits, 8 bits, example)
 - [ ] Force grouping to match up (--strict-group)
 - [ ] Output as little endian 

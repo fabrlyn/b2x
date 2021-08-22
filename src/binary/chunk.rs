@@ -208,6 +208,22 @@ pub fn as_little_endian_u64(chunk: &[u8]) -> u64 {
         .sum()
 }
 
+pub fn as_big_endian_f32(chunk: &[u8]) -> f32 {
+    f32::from_bits(as_big_endian_u32(chunk))
+}
+
+pub fn as_little_endian_f32(chunk: &[u8]) -> f32 {
+    f32::from_bits(as_little_endian_u32(chunk))
+}
+
+pub fn as_big_endian_f64(chunk: &[u8]) -> f64 {
+    f64::from_bits(as_big_endian_u64(chunk))
+}
+
+pub fn as_little_endian_f64(chunk: &[u8]) -> f64 {
+    f64::from_bits(as_little_endian_u64(chunk))
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -542,5 +558,92 @@ mod tests {
 
         let actual = super::as_little_endian_i64(&input);
         assert_eq!(i64::max_value(), actual);
+    }
+
+    #[test]
+    fn as_big_endian_f32() {
+        let input = [
+            [1, 1, 0, 0, 0, 0, 1, 0],
+            [1, 0, 0, 0, 0, 0, 1, 0],
+            [0, 1, 1, 0, 0, 1, 1, 0],
+            [0, 1, 1, 0, 0, 1, 1, 0],
+        ]
+        .iter()
+        .flatten()
+        .map(|v| *v)
+        .collect::<Vec<u8>>();
+
+        let actual = super::as_big_endian_f32(&input);
+        assert_eq!(-65.2, actual);
+    }
+
+    #[test]
+    fn as_little_endian_f32() {
+        let input = [
+            [0, 1, 1, 0, 0, 1, 1, 0],
+            [0, 1, 1, 0, 0, 1, 1, 0],
+            [0, 1, 0, 0, 0, 0, 0, 1],
+            [0, 1, 0, 0, 0, 0, 1, 1],
+        ]
+        .iter()
+        .flatten()
+        .map(|v| *v)
+        .collect::<Vec<u8>>();
+
+        let actual = super::as_little_endian_f32(&input);
+        assert_eq!(-65.2, actual);
+    }
+
+    #[test]
+    fn as_big_endian_f64() {
+        /*
+        let bits = f64::to_bits(-13.23);
+        println!("{:b}", bits);
+        */
+
+        let input = [
+            [1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 1, 0, 1, 0],
+            [0, 1, 1, 1, 0, 1, 0, 1],
+            [1, 1, 0, 0, 0, 0, 1, 0],
+            [1, 0, 0, 0, 1, 1, 1, 1],
+            [0, 1, 0, 1, 1, 1, 0, 0],
+            [0, 0, 1, 0, 1, 0, 0, 0],
+            [1, 1, 1, 1, 0, 1, 1, 0],
+        ]
+        .iter()
+        .flatten()
+        .map(|v| *v)
+        .collect::<Vec<u8>>();
+
+        let actual = super::as_big_endian_f64(&input);
+        assert_eq!(-13.23, actual);
+    }
+
+    #[test]
+    fn as_little_endian_f64() {
+        /*
+        let bits = f64::to_bits(-13.23);
+        println!("{:b}", bits);
+        */
+
+        let input = [
+            [1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 1, 0, 1, 0],
+            [0, 1, 1, 1, 0, 1, 0, 1],
+            [1, 1, 0, 0, 0, 0, 1, 0],
+            [1, 0, 0, 0, 1, 1, 1, 1],
+            [0, 1, 0, 1, 1, 1, 0, 0],
+            [0, 0, 1, 0, 1, 0, 0, 0],
+            [1, 1, 1, 1, 0, 1, 1, 0],
+        ]
+        .iter()
+        .flatten()
+        .rev()
+        .map(|v| *v)
+        .collect::<Vec<u8>>();
+
+        let actual = super::as_little_endian_f64(&input);
+        assert_eq!(-13.23, actual);
     }
 }
