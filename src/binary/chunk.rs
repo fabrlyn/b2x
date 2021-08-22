@@ -53,6 +53,23 @@ pub fn as_big_endian_i8(chunk: &[u8]) -> i8 {
     as_big_endian_u8(chunk) as i8
 }
 
+// Big Endian Signed Deciaml
+pub fn as_little_endian_i8(chunk: &[u8]) -> i8 {
+    let signed = *chunk.last().unwrap();
+    let init = &chunk[0..chunk.len() - 1];
+    if signed == 1 {
+        let inverted = init
+            .iter()
+            .map(|v| if *v == 0 { 1 } else { 0 })
+            .collect::<Vec<_>>();
+
+        let number = as_little_endian_u8(&inverted) as i8;
+        return (number * -1) - 1;
+    }
+
+    as_little_endian_u8(init) as i8
+}
+
 // Little Endian Unsigned Decimal
 pub fn as_little_endian_u8(chunk: &[u8]) -> u8 {
     chunk
@@ -221,6 +238,25 @@ mod tests {
 
         let input = &[0, 1, 1, 1, 1, 1, 1, 1];
         let actual = super::as_big_endian_i8(input);
+        assert_eq!(127, actual);
+    }
+
+    #[test]
+    fn as_little_endian_i8() {
+        let input = &[0, 0, 0, 0, 0, 0, 0, 1];
+        let actual = super::as_little_endian_i8(input);
+        assert_eq!(-128, actual);
+
+        let input = &[1, 0, 0, 0, 0, 0, 0, 1];
+        let actual = super::as_little_endian_i8(input);
+        assert_eq!(-127, actual);
+
+        let input = &[1, 0, 0, 0, 0, 0, 0, 0];
+        let actual = super::as_little_endian_i8(input);
+        assert_eq!(1, actual);
+
+        let input = &[1, 1, 1, 1, 1, 1, 1, 0];
+        let actual = super::as_little_endian_i8(input);
         assert_eq!(127, actual);
     }
 }
