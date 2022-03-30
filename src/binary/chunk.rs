@@ -474,7 +474,7 @@ mod tests {
         let input = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1]]
             .iter()
             .flatten()
-            .map(|v| *v)
+            .copied()
             .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i16(&input);
@@ -483,7 +483,7 @@ mod tests {
         let input = [[1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 0]]
             .iter()
             .flatten()
-            .map(|v| *v)
+            .copied()
             .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i16(&input);
@@ -500,7 +500,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i32(&input);
@@ -514,7 +514,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i32(&input);
@@ -535,7 +535,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i64(&input);
@@ -553,7 +553,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_i64(&input);
@@ -570,7 +570,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_big_endian_f32(&input);
@@ -587,7 +587,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_f32(&input);
@@ -613,7 +613,7 @@ mod tests {
         ]
         .iter()
         .flatten()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_big_endian_f64(&input);
@@ -626,7 +626,6 @@ mod tests {
         let bits = f64::to_bits(-13.23);
         println!("{:b}", bits);
         */
-
         let input = [
             [1, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 1, 0, 1, 0, 1, 0],
@@ -640,7 +639,7 @@ mod tests {
         .iter()
         .flatten()
         .rev()
-        .map(|v| *v)
+        .copied()
         .collect::<Vec<u8>>();
 
         let actual = super::as_little_endian_f64(&input);
