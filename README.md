@@ -17,13 +17,13 @@ b2x bin dec 1011 1010
 
 ###### Flags
 
-- `--float`
+- `--float`, `32` and `64` are the only valid `--group-size` values.
 
 - `--signed`
 
 - `--big-endian`
 
-- `--group-size [2-64]`
+- `--group-size {2-64}`
 
 #### From binary to hexadecimal
 ```
