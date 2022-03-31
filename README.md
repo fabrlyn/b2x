@@ -8,7 +8,7 @@ Common use-cases involve converting binary to hexadecimal or hexadecimal to utf-
 
 ### Binary
 
-#### From binary to decimal
+#### From binary to decimal integer
 ```
 b2x bin dec 1011 1010
 
@@ -17,15 +17,30 @@ b2x bin dec 1011 1010
 
 ###### Flags
 
-- `--float`, `32` and `64` are the only valid `--group-size` values.
-
 - `--signed`
 
 - `--big-endian`
 
 - `--group-size {2-64}`
 
-#### From binary to hexadecimal
+#### From binary to decimal float
+```
+b2x bin f64 1011 1010
+
+=> 11 10
+```
+
+```
+b2x bin f32 1011 1010
+
+=> 11 10
+```
+
+###### Flags
+
+- `--big-endian`
+
+#### From binary to hexadecimal integer
 ```
 b2x bin hex 11010 11011
 
