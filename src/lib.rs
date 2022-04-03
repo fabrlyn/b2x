@@ -8,6 +8,15 @@ let _ = "1001 1010".hex().signed().big_endian().group_size(8).convert();
 let actual: u32 = 10f32.binary().signed().big_endian().group_size().convert();
 */
 
+pub trait BitGroup {}
+
+pub struct ExactBitGroup<T>(PhantomData<T>);
+
+pub struct VariableBitGroup(Option<u8>);
+
+impl<T> BitGroup for ExactBitGroup<T> {}
+impl BitGroup for VariableBitGroup {}
+
 #[derive(Debug)]
 pub struct DecimalConverter<'a, O, E> {
     input: &'a str,
@@ -19,6 +28,7 @@ pub struct DecimalConverter<'a, O, E> {
 pub struct BigEndian;
 pub struct LittleEndian;
 
+#[derive(Debug)]
 pub enum DecimalConverterError {
     GroupSizeOutOfBounds,
 }
@@ -27,13 +37,13 @@ pub trait DecimalConverterExt<O, E> {
     fn decimal(&self) -> DecimalConverter<O, E>;
 }
 
-impl DecimalConverterExt<u64, LittleEndian> for &str {
-    fn decimal(&self) -> DecimalConverter<u64, LittleEndian> {
+impl DecimalConverterExt<VariableBitGroup, LittleEndian> for &str {
+    fn decimal(&self) -> DecimalConverter<VariableBitGroup, LittleEndian> {
         DecimalConverter::new(self)
     }
 }
 
-impl<'a> DecimalConverter<'a, u64, LittleEndian> {
+impl<'a> DecimalConverter<'a, VariableBitGroup, LittleEndian> {
     pub fn new(input: &'a str) -> Self {
         Self {
             input,
@@ -41,6 +51,57 @@ impl<'a> DecimalConverter<'a, u64, LittleEndian> {
             output_marker: PhantomData,
             endian_marker: PhantomData,
         }
+    }
+}
+
+impl<'a, E> DecimalConverter<'a, ExactBitGroup<i8>, E> {
+    pub fn u8(self) -> DecimalConverter<'a, ExactBitGroup<u8>, E> {
+        DecimalConverter {
+            input: self.input,
+            group_size: self.group_size,
+            output_marker: PhantomData,
+            endian_marker: self.endian_marker,
+        }
+    }
+}
+
+impl<'a, E> DecimalConverter<'a, VariableBitGroup, E> {
+    pub fn u8(self) -> DecimalConverter<'a, ExactBitGroup<u8>, E> {
+        DecimalConverter {
+            input: self.input,
+            group_size: self.group_size,
+            output_marker: PhantomData,
+            endian_marker: self.endian_marker,
+        }
+    }
+}
+
+impl<'a, E> DecimalConverter<'a, ExactBitGroup<u64>, E> {
+    pub fn u8(self) -> DecimalConverter<'a, ExactBitGroup<u8>, E> {
+        DecimalConverter {
+            input: self.input,
+            group_size: self.group_size,
+            output_marker: PhantomData,
+            endian_marker: self.endian_marker,
+        }
+    }
+}
+
+impl<'a, O, E> DecimalConverter<'a, O, E> {
+    pub fn bit_group_size(
+        self,
+        group_size: u8,
+    ) -> Result<DecimalConverter<'a, VariableBitGroup, E>, DecimalConverterError> {
+        if !(2..=64).contains(&group_size) {
+            return Err(DecimalConverterError::GroupSizeOutOfBounds);
+        }
+
+        Ok(DecimalConverter {
+            input: self.input,
+            group_size: self.group_size,
+            output_marker: PhantomData,
+            endian_marker: self.endian_marker,
+        })
     }
 }
 
@@ -114,7 +175,15 @@ pub trait FromBinary {
     fn from_binary(&self) -> Self::Output;
 }
 
-impl<'a> FromBinary for DecimalConverter<'a, u64, LittleEndian> {
+impl<'a> FromBinary for DecimalConverter<'a, ExactBitGroup<u8>, LittleEndian> {
+    type Output = Vec<u8>;
+
+    fn from_binary(&self) -> Self::Output {
+        todo!()
+    }
+}
+
+impl<'a, E> FromBinary for DecimalConverter<'a, VariableBitGroup, E> {
     type Output = Vec<u64>;
 
     fn from_binary(&self) -> Self::Output {
@@ -128,6 +197,6 @@ mod tests {
 
     #[test]
     fn binary_from_decimal() {
-        let d = "1010".decimal().from_binary();
+        let d = "1010".decimal().u8().from_binary();
     }
 }
