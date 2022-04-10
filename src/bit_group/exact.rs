@@ -13,7 +13,7 @@ pub struct ExactBitGroup<T>(PhantomData<T>);
 // Impls
 
 impl<'a, E> DecimalConverter<'a, DefaultBitGroup, E> {
-    fn into_output<N>(self) -> DecimalConverter<'a, ExactBitGroup<N>, E> {
+    fn into_exact<N>(self) -> DecimalConverter<'a, ExactBitGroup<N>, E> {
         DecimalConverter {
             input: self.input,
             output_marker: PhantomData,
@@ -22,41 +22,41 @@ impl<'a, E> DecimalConverter<'a, DefaultBitGroup, E> {
     }
 
     pub fn u8(self) -> DecimalConverter<'a, ExactBitGroup<u8>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn i8(self) -> DecimalConverter<'a, ExactBitGroup<i8>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn u16(self) -> DecimalConverter<'a, ExactBitGroup<u16>, E> {
-        self.into_output()
+        self.into_exact()
     }
     pub fn i16(self) -> DecimalConverter<'a, ExactBitGroup<i16>, E> {
-        self.into_output()
+        self.into_exact()
     }
     pub fn u32(self) -> DecimalConverter<'a, ExactBitGroup<u32>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn i32(self) -> DecimalConverter<'a, ExactBitGroup<i32>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn u64(self) -> DecimalConverter<'a, ExactBitGroup<u64>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn i64(self) -> DecimalConverter<'a, ExactBitGroup<i64>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn u128(self) -> DecimalConverter<'a, ExactBitGroup<u128>, E> {
-        self.into_output()
+        self.into_exact()
     }
 
     pub fn i128(self) -> DecimalConverter<'a, ExactBitGroup<i128>, E> {
-        self.into_output()
+        self.into_exact()
     }
 }
 
