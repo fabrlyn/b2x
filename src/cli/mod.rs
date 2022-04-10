@@ -2,9 +2,6 @@ use std::{error::Error, str::FromStr};
 
 use clap::{App, Arg};
 
-use crate::binary;
-use crate::binary::Endian;
-
 enum Output {
     Decimal,
     Float,
@@ -27,18 +24,6 @@ impl FromStr for Output {
             s if s == "binary-little-endian" => Ok(BinaryLittleEndian),
             s if s == "binary-big-endian" => Ok(BinaryBigEndian),
             _ => Err(format!("{} is not a valid output value", s).into()),
-        }
-    }
-}
-
-impl FromStr for Endian {
-    type Err = Box<dyn Error>;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase() {
-            s if s == "little" => Ok(Endian::Little),
-            s if s == "big" => Ok(Endian::Big),
-            s => Err(format!("{} is not a valid endian value", s).into()),
         }
     }
 }
@@ -86,7 +71,6 @@ fn arg_output<'a>() -> Arg<'a> {
 struct Args {
     bit_group: u8,
     signed: bool,
-    endian: Endian,
     output: Output,
 }
 
@@ -101,100 +85,11 @@ pub fn run() {
 
     let args = Args {
         bit_group: matches.value_of_t("bit-group").unwrap(),
-        endian: matches.value_of_t("endian").unwrap(),
         signed: matches.is_present("signed"),
         output: matches.value_of_t("output").unwrap(),
     };
 
     let input = matches.value_of("input").unwrap();
-
-    let result = match args {
-        Args {
-            bit_group: 8,
-            signed: false,
-            endian: Endian::Big,
-            ..
-        } => binary::to_big_endian_u8(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 16,
-            signed: false,
-            endian: Endian::Big,
-            ..
-        } => binary::to_big_endian_u16(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 32,
-            signed: false,
-            endian: Endian::Big,
-            ..
-        } => binary::to_big_endian_u32(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 64,
-            signed: false,
-            endian: Endian::Big,
-            ..
-        } => binary::to_big_endian_u64(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 8,
-            signed: false,
-            endian: Endian::Little,
-            ..
-        } => binary::to_little_endian_u8(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 16,
-            signed: false,
-            endian: Endian::Little,
-            ..
-        } => binary::to_little_endian_u16(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 32,
-            signed: false,
-            endian: Endian::Little,
-            ..
-        } => binary::to_little_endian_u32(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        Args {
-            bit_group: 64,
-            signed: false,
-            endian: Endian::Little,
-            ..
-        } => binary::to_little_endian_u64(input)
-            .unwrap()
-            .into_iter()
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>(),
-        _ => return,
-    };
-
-    result.iter().for_each(|v| {
-        print!("{}", v);
-    });
 
     println!();
 }
