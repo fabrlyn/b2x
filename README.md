@@ -6,7 +6,7 @@ Common use-cases involve converting binary to hexadecimal or hexadecimal to utf-
 
 ## Usage
 
-```
+```sh
 b2x <from> <to> <input>
 ```
 
