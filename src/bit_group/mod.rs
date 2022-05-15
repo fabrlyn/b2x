@@ -2,10 +2,10 @@ use std::marker::PhantomData;
 
 use self::common::{BigEndian, DecimalConverter, LittleEndian};
 
-mod common;
-mod exact;
-mod spaced;
-mod variable;
+pub mod common;
+pub mod exact;
+pub mod spaced;
+pub mod variable;
 
 impl<'a, O> DecimalConverter<'a, O, LittleEndian> {
     pub fn big_endian(self) -> DecimalConverter<'a, O, BigEndian> {

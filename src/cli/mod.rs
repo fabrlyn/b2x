@@ -1,3 +1,4 @@
+mod bin;
 use std::{error::Error, str::FromStr};
 
 use clap::{App, Arg};
@@ -75,14 +76,17 @@ struct Args {
 }
 
 pub fn run() {
-    let matches = App::new("b2x")
-        .arg(arg_input())
-        .arg(arg_bit_group())
-        .arg(arg_endian())
-        .arg(arg_signed())
-        .arg(arg_output())
-        .get_matches();
+    let app = App::new("b2x").subcommand(bin::app());
+    let matches = app.get_matches();
+    /*
+    .arg(arg_input())
+    .arg(arg_bit_group())
+    .arg(arg_endian())
+    .arg(arg_signed())
+    .arg(arg_output())
+    */
 
+    /*
     let args = Args {
         bit_group: matches.value_of_t("bit-group").unwrap(),
         signed: matches.is_present("signed"),
@@ -90,6 +94,14 @@ pub fn run() {
     };
 
     let input = matches.value_of("input").unwrap();
+    */
 
-    println!();
+    match matches.subcommand() {
+        Some(("bin", args)) => {
+            bin::handle(args);
+        }
+        _ => {
+            println!("No match");
+        }
+    }
 }
