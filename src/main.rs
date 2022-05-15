@@ -1,4 +1,3 @@
-mod binary;
 mod cli;
 
 fn main() {
