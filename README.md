@@ -45,12 +45,6 @@ b2x bin dec <input>
 
 ###### Flags
 
-##### `--signed`
-
-Interpret `input` binary string as signed values.
-
-Unsigned by default
-
 ##### `--big-endian`
 
 Interpret `input` binary string bits as big endinan
@@ -64,7 +58,20 @@ The default behaviour is to use space as the value delimiter
 
 - optional
 - default: uses spaces as value delimiter
-- values: 2-64
+- values: 2-128
+
+##### `--signed`
+
+Interpret `input` binary string as signed values.
+
+Unsigned by default
+
+##### `--spaced`
+
+Indicate if binary numbers are seperated by a space character
+
+- optional
+- default: false
 
 ###### Example
 ```

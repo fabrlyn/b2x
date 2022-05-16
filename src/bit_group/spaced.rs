@@ -69,7 +69,7 @@ where
     type Output = Result<Vec<<T as FromBinaryString>::Output>, DecimalConverterError>;
 
     fn from_binary(&self) -> Self::Output {
-        binary::little_endian_to_decimal::<T>(self.input).map_err(DecimalConverterError::ParseError)
+        binary::spaced_little_endian_to_decimal::<T>(self.input).map_err(DecimalConverterError::ParseError)
     }
 }
 
