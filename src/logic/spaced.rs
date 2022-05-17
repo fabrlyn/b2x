@@ -3,7 +3,8 @@ use std::marker::PhantomData;
 use crate::{binary, bit_size::BitSize, from_binary::FromBinaryString};
 
 use super::common::{
-    BigEndian, DecimalConverter, DecimalConverterError, DefaultBitGroup, FromBinary, LittleEndian,
+    BigEndian, DecimalConverter, DecimalConverterError, DefaultBitAlignment, FromBinary,
+    LittleEndian, Symmetric,
 };
 
 // Structs
@@ -12,57 +13,59 @@ pub struct SpacedBitGroup<T>(PhantomData<T>);
 
 // Impls
 
-impl<'a, E> DecimalConverter<'a, DefaultBitGroup, E> {
-    fn into_spaced<N>(self) -> DecimalConverter<'a, SpacedBitGroup<N>, E> {
+impl<'a, E, S, F> DecimalConverter<'a, DefaultBitAlignment, E, S, F> {
+    fn into_spaced<N>(self) -> DecimalConverter<'a, Symmetric<N>, E, S, F> {
         DecimalConverter {
             input: self.input,
-            output_marker: PhantomData,
+            bit_alignment: Symmetric::<N>(PhantomData),
             endian_marker: PhantomData,
+            format_marker: PhantomData,
+            signifier: PhantomData,
         }
     }
 
-    pub fn spaced_u8(self) -> DecimalConverter<'a, SpacedBitGroup<u8>, E> {
+    pub fn spaced_u8(self) -> DecimalConverter<'a, Symmetric<u8>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_i8(self) -> DecimalConverter<'a, SpacedBitGroup<i8>, E> {
+    pub fn spaced_i8(self) -> DecimalConverter<'a, Symmetric<i8>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_u16(self) -> DecimalConverter<'a, SpacedBitGroup<u16>, E> {
+    pub fn spaced_u16(self) -> DecimalConverter<'a, Symmetric<u16>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_i16(self) -> DecimalConverter<'a, SpacedBitGroup<i16>, E> {
+    pub fn spaced_i16(self) -> DecimalConverter<'a, Symmetric<i16>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_u32(self) -> DecimalConverter<'a, SpacedBitGroup<u32>, E> {
+    pub fn spaced_u32(self) -> DecimalConverter<'a, Symmetric<u32>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_i32(self) -> DecimalConverter<'a, SpacedBitGroup<i32>, E> {
+    pub fn spaced_i32(self) -> DecimalConverter<'a, Symmetric<i32>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_u64(self) -> DecimalConverter<'a, SpacedBitGroup<u64>, E> {
+    pub fn spaced_u64(self) -> DecimalConverter<'a, Symmetric<u64>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_i64(self) -> DecimalConverter<'a, SpacedBitGroup<i64>, E> {
+    pub fn spaced_i64(self) -> DecimalConverter<'a, Symmetric<i64>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_u128(self) -> DecimalConverter<'a, SpacedBitGroup<u128>, E> {
+    pub fn spaced_u128(self) -> DecimalConverter<'a, Symmetric<u128>, E, S, F> {
         self.into_spaced()
     }
 
-    pub fn spaced_i128(self) -> DecimalConverter<'a, SpacedBitGroup<i128>, E> {
+    pub fn spaced_i128(self) -> DecimalConverter<'a, Symmetric<i128>, E, S, F> {
         self.into_spaced()
     }
 }
 
-impl<'a, T> FromBinary for DecimalConverter<'a, SpacedBitGroup<T>, LittleEndian>
+impl<'a, T, S, F> FromBinary for DecimalConverter<'a, SpacedBitGroup<T>, LittleEndian, S, F>
 where
     T: BitSize + FromBinaryString,
 {
@@ -74,7 +77,7 @@ where
     }
 }
 
-impl<'a, T> FromBinary for DecimalConverter<'a, SpacedBitGroup<T>, BigEndian>
+impl<'a, T, S, F> FromBinary for DecimalConverter<'a, SpacedBitGroup<T>, BigEndian, S, F>
 where
     T: BitSize + FromBinaryString,
 {
@@ -85,12 +88,14 @@ where
     }
 }
 
-impl<'a, T> DecimalConverter<'a, SpacedBitGroup<T>, LittleEndian> {
+impl<'a, T, S, F> DecimalConverter<'a, Symmetric<T>, LittleEndian, S, F> {
     pub fn new(input: &'a str) -> Self {
         Self {
             input,
-            output_marker: PhantomData,
+            bit_alignment: Symmetric::<T>(PhantomData),
             endian_marker: PhantomData,
+            format_marker: PhantomData,
+            signifier: PhantomData,
         }
     }
 }
@@ -99,7 +104,7 @@ impl<'a, T> DecimalConverter<'a, SpacedBitGroup<T>, LittleEndian> {
 
 #[cfg(test)]
 mod tests {
-    use crate::bit_group::common::{DecimalConverterExt, FromBinary};
+    use crate::logic::common::{DecimalConverterExt, FromBinary};
 
     #[test]
     fn from_u8_binary_to_decimal() {

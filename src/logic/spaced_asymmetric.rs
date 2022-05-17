@@ -1,8 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::from_binary::FromBinaryString;
-
-use super::common::{DecimalConverter, DecimalConverterError, DefaultBitGroup, FromBinary};
+use super::common::DecimalConverterError;
 
 pub struct SpacedAsymmetricBitGroup<T> {
     bit_group_marker: PhantomData<T>,

@@ -8,22 +8,26 @@ pub mod spaced;
 pub mod spaced_asymmetric;
 pub mod variable;
 
-impl<'a, O> DecimalConverter<'a, O, LittleEndian> {
-    pub fn big_endian(self) -> DecimalConverter<'a, O, BigEndian> {
+impl<'a, O, S, F> DecimalConverter<'a, O, LittleEndian, S, F> {
+    pub fn big_endian(self) -> DecimalConverter<'a, O, BigEndian, S, F> {
         DecimalConverter {
             input: self.input,
-            output_marker: PhantomData,
+            bit_alignment: self.bit_alignment,
             endian_marker: PhantomData,
+            format_marker: PhantomData,
+            signifier: PhantomData,
         }
     }
 }
 
-impl<'a, O> DecimalConverter<'a, O, BigEndian> {
-    pub fn little_endian(self) -> DecimalConverter<'a, O, LittleEndian> {
+impl<'a, O, S, F> DecimalConverter<'a, O, BigEndian, S, F> {
+    pub fn little_endian(self) -> DecimalConverter<'a, O, LittleEndian, S, F> {
         DecimalConverter {
             input: self.input,
-            output_marker: PhantomData,
+            bit_alignment: self.bit_alignment,
             endian_marker: PhantomData,
+            format_marker: PhantomData,
+            signifier: PhantomData,
         }
     }
 }

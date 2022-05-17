@@ -1,5 +1,5 @@
 use b2x::logic::common::{
-    BigEndian, DecimalConverter, DecimalConverterExt, DefaultBitGroup, FromBinary, LittleEndian,
+    BigEndian, DecimalConverter, DecimalConverterExt, DefaultBitAlignment, FromBinary, LittleEndian,
 };
 use clap::{App, ArgMatches};
 
@@ -29,7 +29,8 @@ impl ToDecCommand {
             .arg(arg::Spaced::arg())
     }
 
-    fn to_little_endian<T>(d: DecimalConverter<T, LittleEndian>, matches: &ArgMatches) {
+    /*
+    fn to_little_endian<T, F>(d: DecimalConverter<T, LittleEndian, F>, matches: &ArgMatches) {
         let group_size = arg::GroupSize::value(matches);
         let signed = arg::Signed::value(matches);
         let spaced = arg::Spaced::value(matches);
@@ -47,8 +48,13 @@ impl ToDecCommand {
             (SIGNED, SPACED, ASYMMETRIC) => {}
         }
     }
+    */
 
-    fn to_big_endian<T>(d: DecimalConverter<DefaultBitGroup, BigEndian>, matches: &ArgMatches) {
+    /*
+    fn to_big_endian<T, F>(
+        d: DecimalConverter<DefaultBitAlignment, BigEndian, F>,
+        matches: &ArgMatches,
+    ) {
         let group_size = arg::GroupSize::value(matches);
         let signed = arg::Signed::value(matches);
         let spaced = arg::Spaced::value(matches);
@@ -66,6 +72,7 @@ impl ToDecCommand {
             (SIGNED, SPACED, ASYMMETRIC) => {}
         }
     }
+    */
 
     pub fn handle(matches: &ArgMatches) {
         let input = arg::Input::value(matches);
@@ -76,6 +83,7 @@ impl ToDecCommand {
 
         let group_size = arg::GroupSize::value(matches);
         let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
+        /*
 
         match big_endian {
             LITTLE_ENDIAN => {
@@ -85,6 +93,7 @@ impl ToDecCommand {
                 Self::to_little_endian(input.decimal(), matches);
             }
         }
+        */
     }
 
     const fn name() -> &'static str {

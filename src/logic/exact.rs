@@ -2,13 +2,9 @@ use std::marker::PhantomData;
 
 use crate::{binary, bit_size::BitSize, from_binary::FromBinaryString};
 
-use super::{
-    common::{
-        BigEndian, DecimalConverter, DecimalConverterError, DefaultBitGroup, FromBinary,
-        LittleEndian,
-    },
-    spaced::SpacedBitGroup,
-    variable::VariableBitGroup,
+use super::common::{
+    BigEndian, DecimalConverter, DecimalConverterError, DefaultBitAlignment, FromBinary,
+    LittleEndian, Symmetric,
 };
 
 // Structs
@@ -17,55 +13,57 @@ pub struct ExactBitGroup<T>(PhantomData<T>);
 
 // Impls
 
-impl<'a, E> DecimalConverter<'a, DefaultBitGroup, E> {
-    fn into_exact<N>(self) -> DecimalConverter<'a, ExactBitGroup<N>, E> {
+impl<'a, E, S, F> DecimalConverter<'a, DefaultBitAlignment, E, S, F> {
+    fn into_exact<N>(self) -> DecimalConverter<'a, Symmetric<N>, E, S, F> {
         DecimalConverter {
             input: self.input,
-            output_marker: PhantomData,
+            bit_alignment: Symmetric::<N>(PhantomData),
             endian_marker: self.endian_marker,
+            format_marker: self.format_marker,
+            signifier: self.signifier,
         }
     }
 
-    pub fn u8(self) -> DecimalConverter<'a, ExactBitGroup<u8>, E> {
+    pub fn u8(self) -> DecimalConverter<'a, Symmetric<u8>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn i8(self) -> DecimalConverter<'a, ExactBitGroup<i8>, E> {
+    pub fn i8(self) -> DecimalConverter<'a, Symmetric<i8>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn u16(self) -> DecimalConverter<'a, ExactBitGroup<u16>, E> {
+    pub fn u16(self) -> DecimalConverter<'a, Symmetric<u16>, E, S, F> {
         self.into_exact()
     }
-    pub fn i16(self) -> DecimalConverter<'a, ExactBitGroup<i16>, E> {
+    pub fn i16(self) -> DecimalConverter<'a, Symmetric<i16>, E, S, F> {
         self.into_exact()
     }
-    pub fn u32(self) -> DecimalConverter<'a, ExactBitGroup<u32>, E> {
-        self.into_exact()
-    }
-
-    pub fn i32(self) -> DecimalConverter<'a, ExactBitGroup<i32>, E> {
+    pub fn u32(self) -> DecimalConverter<'a, Symmetric<u32>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn u64(self) -> DecimalConverter<'a, ExactBitGroup<u64>, E> {
+    pub fn i32(self) -> DecimalConverter<'a, Symmetric<i32>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn i64(self) -> DecimalConverter<'a, ExactBitGroup<i64>, E> {
+    pub fn u64(self) -> DecimalConverter<'a, Symmetric<u64>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn u128(self) -> DecimalConverter<'a, ExactBitGroup<u128>, E> {
+    pub fn i64(self) -> DecimalConverter<'a, Symmetric<i64>, E, S, F> {
         self.into_exact()
     }
 
-    pub fn i128(self) -> DecimalConverter<'a, ExactBitGroup<i128>, E> {
+    pub fn u128(self) -> DecimalConverter<'a, Symmetric<u128>, E, S, F> {
+        self.into_exact()
+    }
+
+    pub fn i128(self) -> DecimalConverter<'a, Symmetric<i128>, E, S, F> {
         self.into_exact()
     }
 }
 
-impl<'a, T> FromBinary for DecimalConverter<'a, ExactBitGroup<T>, LittleEndian>
+impl<'a, T, S, F> FromBinary for DecimalConverter<'a, ExactBitGroup<T>, LittleEndian, S, F>
 where
     T: BitSize + FromBinaryString,
 {
@@ -76,7 +74,7 @@ where
     }
 }
 
-impl<'a, T> FromBinary for DecimalConverter<'a, ExactBitGroup<T>, BigEndian>
+impl<'a, T, S, F> FromBinary for DecimalConverter<'a, ExactBitGroup<T>, BigEndian, S, F>
 where
     T: BitSize + FromBinaryString,
 {
@@ -91,9 +89,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::bit_group::common::DecimalConverterExt;
-
-    use super::*;
+    use crate::logic::common::DecimalConverterExt;
 
     #[test]
     fn from_u8_binary_to_decimal() {
