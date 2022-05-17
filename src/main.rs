@@ -1,5 +1,7 @@
+use cli::Cli;
+
 mod cli;
 
 fn main() {
-    cli::run();
+    Cli::run();
 }

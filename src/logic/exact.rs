@@ -2,8 +2,13 @@ use std::marker::PhantomData;
 
 use crate::{binary, bit_size::BitSize, from_binary::FromBinaryString};
 
-use super::common::{
-    BigEndian, DecimalConverter, DecimalConverterError, DefaultBitGroup, FromBinary, LittleEndian,
+use super::{
+    common::{
+        BigEndian, DecimalConverter, DecimalConverterError, DefaultBitGroup, FromBinary,
+        LittleEndian,
+    },
+    spaced::SpacedBitGroup,
+    variable::VariableBitGroup,
 };
 
 // Structs

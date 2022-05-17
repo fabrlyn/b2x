@@ -1,5 +1,7 @@
 use std::marker::PhantomData;
 
+use crate::bit_size::BitSize;
+
 use super::common::{DecimalConverter, DecimalConverterError};
 
 pub struct VariableBitGroup(u8);
@@ -20,3 +22,4 @@ impl<'a, O, E> DecimalConverter<'a, O, E> {
         })
     }
 }
+

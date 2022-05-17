@@ -61,3 +61,7 @@ impl BitSize for i128 {
         128
     }
 }
+
+pub trait AsymmetricSized {
+    fn size() -> usize;    
+}

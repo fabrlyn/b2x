@@ -18,7 +18,7 @@ where
 pub fn spaced_little_endian_to_decimal<T: BitSize + FromBinaryString>(
     data: &str,
 ) -> ToResult<<T as FromBinaryString>::Output> {
-    data.split_whitespace()
+    data.split(' ')
         .map(|d| to_decimal::<T>(d))
         .collect::<Result<Vec<_>, _>>()
         .map(|v| v.into_iter().flatten().collect())

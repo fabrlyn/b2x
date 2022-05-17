@@ -1,89 +1,118 @@
-use b2x::bit_group::common::{DecimalConverterExt, FromBinary};
-use clap::{App, Arg, ArgMatches};
+use b2x::logic::common::{
+    BigEndian, DecimalConverter, DecimalConverterExt, DefaultBitGroup, FromBinary, LittleEndian,
+};
+use clap::{App, ArgMatches};
 
-fn app_dec<'a>() -> App<'a> {
-    App::new("dec")
-        .arg(Arg::new("input").takes_value(true).required(true).about("The binary string input"))
-        .arg(Arg::new("big-endian").long("big-endian").takes_value(false).required(false).about("Parse the input digits as big endian bits"))
-        .arg(Arg::new("group-size").long("group-size").takes_value(true).required(false).default_value("64").about("Set the number of digits for each binary number"))
-        .arg(Arg::new("signed").long("signed").takes_value(false).about("If the number should be parsed as a signed number"))
-        .arg(Arg::new("spaced").long("spaced").takes_value(false).about("Each binary number can be variable length and is parsed based the space character as a delimiter"))
-}
+use crate::cli::shared::arg;
 
-fn handle_dec(matches: &ArgMatches) {
-    let input = matches.value_of("input").unwrap();
+const LITTLE_ENDIAN: bool = false;
+const BIG_ENDIAN: bool = true;
 
-    let big_endian = matches.is_present("big-endian");
-    let group_size: u8 = matches.value_of_t("group-size").unwrap();
-    let signed = matches.is_present("signed");
-    let spaced = matches.is_present("spaced");
+const UNSPACED: bool = false;
+const SPACED: bool = true;
 
-    println!("input: {}", input);
+const UNSIGNED: bool = false;
+const SIGNED: bool = true;
 
-    println!("group_size: {}", group_size);
-    println!("signed: {}", signed);
-    println!("big_endian: {}", big_endian);
+const ASYMMETRIC: bool = false;
+const SYMMETRIC: bool = true;
 
-    let output = match (big_endian, signed, spaced) {
-        (false, false, false) => match group_size {
-            8 => input
-                .decimal()
-                .u8()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            16 => input
-                .decimal()
-                .u16()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            32 => input
-                .decimal()
-                .u32()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            64 => input
-                .decimal()
-                .u64()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            128 => input
-                .decimal()
-                .u128()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            _ => Err("Not yet supported".to_string()),
-        },
-        (false, false, true) => match group_size {
-            2..=8 => input
-                .decimal()
-                .spaced_u8()
-                .from_binary()
-                .map_err(|e| format!("{:?}", e))
-                .map(|n| format!("{:?}", n)),
-            _ => Err("Not yet supported".to_string()),
-        },
-        _ => Err("Not yet supported".to_string()),
-    };
+pub struct ToDecCommand;
 
-    println!("output: {:?}", output);
-}
+impl ToDecCommand {
+    pub fn command<'a>() -> App<'a> {
+        App::new(Self::name())
+            .arg(arg::Input::arg())
+            .arg(arg::BigEndian::arg())
+            .arg(arg::GroupSize::arg())
+            .arg(arg::Signed::arg())
+            .arg(arg::Spaced::arg())
+    }
 
-pub fn app<'a>() -> App<'a> {
-    App::new("bin").subcommand(app_dec())
-}
+    fn to_little_endian<T>(d: DecimalConverter<T, LittleEndian>, matches: &ArgMatches) {
+        let group_size = arg::GroupSize::value(matches);
+        let signed = arg::Signed::value(matches);
+        let spaced = arg::Spaced::value(matches);
 
-pub fn handle(matches: &ArgMatches) {
-    match matches.subcommand() {
-        Some(("dec", matches)) => {
-            handle_dec(matches);
+        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
+
+        match (signed, spaced, symmetric) {
+            (UNSIGNED, UNSPACED, SYMMETRIC) => {}
+            (UNSIGNED, UNSPACED, ASYMMETRIC) => {}
+            (UNSIGNED, SPACED, SYMMETRIC) => {}
+            (UNSIGNED, SPACED, ASYMMETRIC) => {}
+            (SIGNED, UNSPACED, SYMMETRIC) => {}
+            (SIGNED, UNSPACED, ASYMMETRIC) => {}
+            (SIGNED, SPACED, SYMMETRIC) => {}
+            (SIGNED, SPACED, ASYMMETRIC) => {}
         }
-        _ => {
-            println!("No match in bin");
+    }
+
+    fn to_big_endian<T>(d: DecimalConverter<DefaultBitGroup, BigEndian>, matches: &ArgMatches) {
+        let group_size = arg::GroupSize::value(matches);
+        let signed = arg::Signed::value(matches);
+        let spaced = arg::Spaced::value(matches);
+
+        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
+
+        match (signed, spaced, symmetric) {
+            (UNSIGNED, UNSPACED, SYMMETRIC) => {}
+            (UNSIGNED, UNSPACED, ASYMMETRIC) => {}
+            (UNSIGNED, SPACED, SYMMETRIC) => {}
+            (UNSIGNED, SPACED, ASYMMETRIC) => {}
+            (SIGNED, UNSPACED, SYMMETRIC) => {}
+            (SIGNED, UNSPACED, ASYMMETRIC) => {}
+            (SIGNED, SPACED, SYMMETRIC) => {}
+            (SIGNED, SPACED, ASYMMETRIC) => {}
         }
+    }
+
+    pub fn handle(matches: &ArgMatches) {
+        let input = arg::Input::value(matches);
+        let big_endian = arg::BigEndian::value(matches);
+
+        let signed = arg::Signed::value(matches);
+        let spaced = arg::Spaced::value(matches);
+
+        let group_size = arg::GroupSize::value(matches);
+        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
+
+        match big_endian {
+            LITTLE_ENDIAN => {
+                Self::to_little_endian(input.decimal(), matches);
+            }
+            BIG_ENDIAN => {
+                Self::to_little_endian(input.decimal(), matches);
+            }
+        }
+    }
+
+    const fn name() -> &'static str {
+        "dec"
+    }
+}
+
+pub struct Command;
+
+impl Command {
+    pub fn command<'a>() -> App<'a> {
+        App::new(Self::name()).subcommand(ToDecCommand::command())
+    }
+
+    pub fn handle(matches: &ArgMatches) {
+        const TO_DEC: &str = ToDecCommand::name();
+
+        match matches.subcommand() {
+            Some((TO_DEC, matches)) => {
+                ToDecCommand::handle(matches);
+            }
+            _ => {
+                println!("No match in bin");
+            }
+        }
+    }
+
+    pub const fn name() -> &'static str {
+        "bin"
     }
 }

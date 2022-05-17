@@ -5,6 +5,7 @@ use self::common::{BigEndian, DecimalConverter, LittleEndian};
 pub mod common;
 pub mod exact;
 pub mod spaced;
+pub mod spaced_asymmetric;
 pub mod variable;
 
 impl<'a, O> DecimalConverter<'a, O, LittleEndian> {
