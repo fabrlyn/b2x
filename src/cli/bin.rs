@@ -1,6 +1,4 @@
-use b2x::logic::common::{
-    BigEndian, DecimalConverter, DecimalConverterExt, DefaultBitAlignment, FromBinary, LittleEndian,
-};
+use b2x::logic::common::{BinToDecExt, ToDec};
 use clap::{App, ArgMatches};
 
 use crate::cli::shared::arg;
@@ -8,18 +6,19 @@ use crate::cli::shared::arg;
 const LITTLE_ENDIAN: bool = false;
 const BIG_ENDIAN: bool = true;
 
-const UNSPACED: bool = false;
+const COMPACT: bool = false;
 const SPACED: bool = true;
 
 const UNSIGNED: bool = false;
 const SIGNED: bool = true;
 
-const ASYMMETRIC: bool = false;
-const SYMMETRIC: bool = true;
-
 pub struct ToDecCommand;
 
 impl ToDecCommand {
+    const fn name() -> &'static str {
+        "dec"
+    }
+
     pub fn command<'a>() -> App<'a> {
         App::new(Self::name())
             .arg(arg::Input::arg())
@@ -29,51 +28,6 @@ impl ToDecCommand {
             .arg(arg::Spaced::arg())
     }
 
-    /*
-    fn to_little_endian<T, F>(d: DecimalConverter<T, LittleEndian, F>, matches: &ArgMatches) {
-        let group_size = arg::GroupSize::value(matches);
-        let signed = arg::Signed::value(matches);
-        let spaced = arg::Spaced::value(matches);
-
-        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
-
-        match (signed, spaced, symmetric) {
-            (UNSIGNED, UNSPACED, SYMMETRIC) => {}
-            (UNSIGNED, UNSPACED, ASYMMETRIC) => {}
-            (UNSIGNED, SPACED, SYMMETRIC) => {}
-            (UNSIGNED, SPACED, ASYMMETRIC) => {}
-            (SIGNED, UNSPACED, SYMMETRIC) => {}
-            (SIGNED, UNSPACED, ASYMMETRIC) => {}
-            (SIGNED, SPACED, SYMMETRIC) => {}
-            (SIGNED, SPACED, ASYMMETRIC) => {}
-        }
-    }
-    */
-
-    /*
-    fn to_big_endian<T, F>(
-        d: DecimalConverter<DefaultBitAlignment, BigEndian, F>,
-        matches: &ArgMatches,
-    ) {
-        let group_size = arg::GroupSize::value(matches);
-        let signed = arg::Signed::value(matches);
-        let spaced = arg::Spaced::value(matches);
-
-        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
-
-        match (signed, spaced, symmetric) {
-            (UNSIGNED, UNSPACED, SYMMETRIC) => {}
-            (UNSIGNED, UNSPACED, ASYMMETRIC) => {}
-            (UNSIGNED, SPACED, SYMMETRIC) => {}
-            (UNSIGNED, SPACED, ASYMMETRIC) => {}
-            (SIGNED, UNSPACED, SYMMETRIC) => {}
-            (SIGNED, UNSPACED, ASYMMETRIC) => {}
-            (SIGNED, SPACED, SYMMETRIC) => {}
-            (SIGNED, SPACED, ASYMMETRIC) => {}
-        }
-    }
-    */
-
     pub fn handle(matches: &ArgMatches) {
         let input = arg::Input::value(matches);
         let big_endian = arg::BigEndian::value(matches);
@@ -82,28 +36,26 @@ impl ToDecCommand {
         let spaced = arg::Spaced::value(matches);
 
         let group_size = arg::GroupSize::value(matches);
-        let symmetric = [8, 16, 32, 64, 128].contains(&group_size);
-        /*
 
-        match big_endian {
-            LITTLE_ENDIAN => {
-                Self::to_little_endian(input.decimal(), matches);
+        match (big_endian, signed, spaced, group_size) {
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 8) => {
+                input.bin_to_dec().u8().convert().iter().for_each(|output| {
+                    println!("output: {}", output);
+                });
             }
-            BIG_ENDIAN => {
-                Self::to_little_endian(input.decimal(), matches);
-            }
+            (LITTLE_ENDIAN, UNSIGNED, SPACED, 8) => {}
+            _ => {}
         }
-        */
-    }
-
-    const fn name() -> &'static str {
-        "dec"
     }
 }
 
 pub struct Command;
 
 impl Command {
+    pub const fn name() -> &'static str {
+        "bin"
+    }
+
     pub fn command<'a>() -> App<'a> {
         App::new(Self::name()).subcommand(ToDecCommand::command())
     }
@@ -119,9 +71,5 @@ impl Command {
                 println!("No match in bin");
             }
         }
-    }
-
-    pub const fn name() -> &'static str {
-        "bin"
     }
 }

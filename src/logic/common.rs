@@ -2,40 +2,36 @@ use std::marker::PhantomData;
 
 // Types
 
-pub type DefaultBitAlignment = Symmetric<u64>;
+// Investigate
+// https://stackoverflow.com/questions/59515668/how-does-the-iteratorcollect-function-work
+pub trait ToDec {
+    type Output;
+
+    fn convert(self) -> Self::Output;
+}
+
+pub type DefaultBitAlignment = StandardBits<u32>;
 
 // Traits
 
-pub trait DecimalConverterExt {
+pub trait BinToDecExt {
+    type Input;
     type BitAlignment;
     type Endian;
     type Format;
-    type Signifier;
 
-    fn decimal(
-        &self,
-    ) -> DecimalConverter<Self::BitAlignment, Self::Endian, Self::Signifier, Self::Format>;
-}
-
-pub trait FromBinary {
-    type Output;
-
-    fn from_binary(&self) -> Self::Output;
+    fn bin_to_dec(self) -> BinToDec<Self::Input, Self::BitAlignment, Self::Endian, Self::Format>;
 }
 
 // Structs
 
 // BitAlignent
 
-pub struct Asymmetric<T>(pub PhantomData<T>, pub u8);
+pub struct ExactBits<T>(pub PhantomData<T>, pub u8);
 
-pub struct Symmetric<T>(pub PhantomData<T>);
+pub struct VariableBits<T>(pub PhantomData<T>);
 
-// Signifier
-
-pub struct Signed;
-
-pub struct Unsigned;
+pub struct StandardBits<T>(pub PhantomData<T>);
 
 // Format
 
@@ -50,11 +46,10 @@ pub struct BigEndian;
 pub struct LittleEndian;
 
 #[derive(Debug)]
-pub struct DecimalConverter<'a, B, E, S, F> {
-    pub input: &'a str,
+pub struct BinToDec<I, B, E, F> {
+    pub input: I,
     pub bit_alignment: B,
     pub endian_marker: PhantomData<E>,
-    pub signifier: PhantomData<S>,
     pub format_marker: PhantomData<F>,
 }
 
@@ -68,28 +63,34 @@ pub enum DecimalConverterError {
 
 // Impls
 
-impl DecimalConverterExt for &str {
+impl<'a> BinToDecExt for &'a str {
+    type Input = &'a str;
     type BitAlignment = DefaultBitAlignment;
     type Endian = LittleEndian;
     type Format = Compact;
-    type Signifier = Unsigned;
 
-    fn decimal(
-        &self,
-    ) -> DecimalConverter<Self::BitAlignment, Self::Endian, Self::Signifier, Self::Format> {
-        DecimalConverter::new(self)
+    fn bin_to_dec(self) -> BinToDec<Self::Input, Self::BitAlignment, Self::Endian, Self::Format> {
+        BinToDec {
+            input: self,
+            bit_alignment: StandardBits(PhantomData),
+            endian_marker: PhantomData,
+            format_marker: PhantomData,
+        }
     }
 }
 
-impl DecimalConverterExt for String {
+impl BinToDecExt for String {
+    type Input = String;
     type BitAlignment = DefaultBitAlignment;
     type Endian = LittleEndian;
     type Format = Compact;
-    type Signifier = Unsigned;
 
-    fn decimal(
-        &self,
-    ) -> DecimalConverter<Self::BitAlignment, Self::Endian, Self::Signifier, Self::Format> {
-        DecimalConverter::new(self)
+    fn bin_to_dec(self) -> BinToDec<Self::Input, Self::BitAlignment, Self::Endian, Self::Format> {
+        BinToDec {
+            input: self,
+            bit_alignment: StandardBits(PhantomData),
+            endian_marker: PhantomData,
+            format_marker: PhantomData,
+        }
     }
 }
