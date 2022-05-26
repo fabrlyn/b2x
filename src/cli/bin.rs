@@ -39,7 +39,8 @@ impl ToDecCommand {
 
         match (big_endian, signed, spaced, group_size) {
             (LITTLE_ENDIAN, UNSIGNED, COMPACT, 8) => {
-                input.bin_to_dec().u8().convert().iter().for_each(|output| {
+                let converted: Vec<u8> = input.bin_to_dec().u8().convert();
+                converted.iter().for_each(|output| {
                     println!("output: {}", output);
                 });
             }

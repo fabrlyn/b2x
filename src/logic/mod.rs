@@ -39,10 +39,8 @@ impl<I, E, F> BinToDec<I, DefaultBitAlignment, E, F> {
     }
 }
 
-impl ToDec for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
-    type Output = Vec<u8>;
-
-    fn convert(self) -> Self::Output {
+impl ToDec<Vec<u8>> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
+    fn convert(self) -> Vec<u8> {
         self.input
             .as_bytes()
             .chunks(8)
@@ -52,5 +50,11 @@ impl ToDec for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
             .iter()
             .map(|s| u8::from_str_radix(s, 2).unwrap())
             .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<u8> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
+    fn convert(self) -> u8 {
+        u8::from_str_radix(self.input, 2).unwrap()
     }
 }

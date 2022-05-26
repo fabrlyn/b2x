@@ -4,11 +4,10 @@ use std::marker::PhantomData;
 
 // Investigate
 // https://stackoverflow.com/questions/59515668/how-does-the-iteratorcollect-function-work
-pub trait ToDec {
-    type Output;
-
-    fn convert(self) -> Self::Output;
+pub trait ToDec<T> {
+    fn convert(self) -> T;
 }
+
 
 pub type DefaultBitAlignment = StandardBits<u32>;
 
