@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use self::common::{
-    BigEndian, BinToDec, Compact, DefaultBitAlignment, LittleEndian, Spaced, StandardBits, ToDec,
-    VariableBits,
+    BigEndian, BinToDec, Compact, DefaultBitAlignment, ExactBits, LittleEndian, Spaced,
+    StandardBits, ToDec, VariableBits,
 };
 
 pub mod common;
@@ -37,6 +37,81 @@ impl<I, T, E, F> BinToDec<I, StandardBits<T>, E, F> {
             bit_alignment: VariableBits(PhantomData),
             endian_marker: self.endian_marker,
             format_marker: self.format_marker,
+        }
+    }
+}
+
+impl<I, E, F> BinToDec<I, StandardBits<u8>, E, F> {
+    pub fn exact(self, n: u8) -> Result<BinToDec<I, ExactBits<u8>, E, F>, String> {
+        if n > 7 {
+            Err("Must be one bit or smaller then the expected output type".to_string())
+        } else {
+            Ok(BinToDec {
+                input: self.input,
+                bit_alignment: ExactBits(PhantomData, n),
+                endian_marker: self.endian_marker,
+                format_marker: self.format_marker,
+            })
+        }
+    }
+}
+
+impl<I, E, F> BinToDec<I, StandardBits<u16>, E, F> {
+    pub fn exact(self, n: u8) -> Result<BinToDec<I, ExactBits<u16>, E, F>, String> {
+        if n > 15 {
+            Err("Must be one bit or smaller then the expected output type".to_string())
+        } else {
+            Ok(BinToDec {
+                input: self.input,
+                bit_alignment: ExactBits(PhantomData, n),
+                endian_marker: self.endian_marker,
+                format_marker: self.format_marker,
+            })
+        }
+    }
+}
+
+impl<I, E, F> BinToDec<I, StandardBits<u32>, E, F> {
+    pub fn exact(self, n: u8) -> Result<BinToDec<I, ExactBits<u32>, E, F>, String> {
+        if n > 31 {
+            Err("Must be one bit or smaller then the expected output type".to_string())
+        } else {
+            Ok(BinToDec {
+                input: self.input,
+                bit_alignment: ExactBits(PhantomData, n),
+                endian_marker: self.endian_marker,
+                format_marker: self.format_marker,
+            })
+        }
+    }
+}
+
+impl<I, E, F> BinToDec<I, StandardBits<u64>, E, F> {
+    pub fn exact(self, n: u8) -> Result<BinToDec<I, ExactBits<u64>, E, F>, String> {
+        if n > 63 {
+            Err("Must be one bit or smaller then the expected output type".to_string())
+        } else {
+            Ok(BinToDec {
+                input: self.input,
+                bit_alignment: ExactBits(PhantomData, n),
+                endian_marker: self.endian_marker,
+                format_marker: self.format_marker,
+            })
+        }
+    }
+}
+
+impl<I, E, F> BinToDec<I, StandardBits<u128>, E, F> {
+    pub fn exact(self, n: u8) -> Result<BinToDec<I, ExactBits<u128>, E, F>, String> {
+        if n > 127 {
+            Err("Must be one bit or smaller then the expected output type".to_string())
+        } else {
+            Ok(BinToDec {
+                input: self.input,
+                bit_alignment: ExactBits(PhantomData, n),
+                endian_marker: self.endian_marker,
+                format_marker: self.format_marker,
+            })
         }
     }
 }
@@ -216,6 +291,7 @@ impl ToDec<Vec<u128>> for BinToDec<&str, StandardBits<u128>, LittleEndian, Compa
 }
 
 // LITTLE_ENDIAN, UNSIGNED, SPACED, N
+
 impl ToDec<Vec<u8>> for BinToDec<&str, StandardBits<u8>, LittleEndian, Spaced> {
     fn convert(self) -> Vec<u8> {
         self.input
@@ -223,6 +299,36 @@ impl ToDec<Vec<u8>> for BinToDec<&str, StandardBits<u8>, LittleEndian, Spaced> {
             .filter(|s| !s.is_empty())
             .map(ToString::to_string)
             .map(|a| validate_group_size(a, 8))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u8::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u8>> for BinToDec<&str, VariableBits<u8>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u8> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, 8))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u8::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u8>> for BinToDec<&str, ExactBits<u8>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u8> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, self.bit_alignment.1))
             .collect::<Result<Vec<_>, _>>()
             .unwrap()
             .iter()
@@ -246,6 +352,36 @@ impl ToDec<Vec<u16>> for BinToDec<&str, StandardBits<u16>, LittleEndian, Spaced>
     }
 }
 
+impl ToDec<Vec<u16>> for BinToDec<&str, VariableBits<u16>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u16> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, 16))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u16::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u16>> for BinToDec<&str, ExactBits<u16>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u16> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, self.bit_alignment.1))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u16::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
 impl ToDec<Vec<u32>> for BinToDec<&str, StandardBits<u32>, LittleEndian, Spaced> {
     fn convert(self) -> Vec<u32> {
         self.input
@@ -253,6 +389,36 @@ impl ToDec<Vec<u32>> for BinToDec<&str, StandardBits<u32>, LittleEndian, Spaced>
             .filter(|s| !s.is_empty())
             .map(ToString::to_string)
             .map(|a| validate_group_size(a, 32))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u32::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u32>> for BinToDec<&str, VariableBits<u32>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u32> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, 32))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u32::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u32>> for BinToDec<&str, ExactBits<u32>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u32> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, self.bit_alignment.1))
             .collect::<Result<Vec<_>, _>>()
             .unwrap()
             .iter()
@@ -276,6 +442,36 @@ impl ToDec<Vec<u64>> for BinToDec<&str, StandardBits<u64>, LittleEndian, Spaced>
     }
 }
 
+impl ToDec<Vec<u64>> for BinToDec<&str, VariableBits<u64>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u64> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, 64))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u64::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u64>> for BinToDec<&str, ExactBits<u64>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u64> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, self.bit_alignment.1))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u64::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
 impl ToDec<Vec<u128>> for BinToDec<&str, StandardBits<u128>, LittleEndian, Spaced> {
     fn convert(self) -> Vec<u128> {
         self.input
@@ -283,6 +479,36 @@ impl ToDec<Vec<u128>> for BinToDec<&str, StandardBits<u128>, LittleEndian, Space
             .filter(|s| !s.is_empty())
             .map(ToString::to_string)
             .map(|a| validate_group_size(a, 128))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u128::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u128>> for BinToDec<&str, VariableBits<u128>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u128> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, 128))
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap()
+            .iter()
+            .map(|s| u128::from_str_radix(s, 2).unwrap())
+            .collect::<Vec<_>>()
+    }
+}
+
+impl ToDec<Vec<u128>> for BinToDec<&str, ExactBits<u128>, LittleEndian, Spaced> {
+    fn convert(self) -> Vec<u128> {
+        self.input
+            .split(' ')
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .map(|a| validate_variable_group_size(a, self.bit_alignment.1))
             .collect::<Result<Vec<_>, _>>()
             .unwrap()
             .iter()
@@ -571,6 +797,19 @@ fn to_signed_string(s: String) -> String {
     }
 }
 
+fn validate_variable_group_size(source: String, max_size: u8) -> Result<String, String> {
+    if source.len() > max_size as usize {
+        Err(format!(
+            "Source {} has size {}, max size is {}",
+            source,
+            source.len(),
+            max_size
+        ))
+    } else {
+        Ok(source)
+    }
+}
+
 fn validate_group_size(source: String, target_size: usize) -> Result<String, String> {
     if source.len() != target_size {
         Err(format!(
@@ -609,6 +848,26 @@ mod tests {
     }
 
     #[test]
+    fn bin_to_dec_variable_bits_u8_little_endian_spaced() {
+        let input: &str = &vec!["10", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input.bin_to_dec().u8().spaced().variable().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn bin_to_dec_exact_bits_u8_little_endian_spaced() {
+        let input: &str = &vec!["0010", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input.bin_to_dec().u8().spaced().exact(4).unwrap().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
     fn bin_to_dec_std_bits_u16_little_endian_compact() {
         let input: &str = &vec!["0000000000001010", "0000000000001100"]
             .into_iter()
@@ -626,6 +885,32 @@ mod tests {
 
         let expected = vec![10, 12];
         let actual: Vec<_> = input.bin_to_dec().u16().spaced().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn bin_to_dec_variable_bits_u16_little_endian_spaced() {
+        let input: &str = &vec!["10", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input.bin_to_dec().u16().spaced().variable().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn bin_to_dec_exact_bits_u16_little_endian_spaced() {
+        let input: &str = &vec!["0010", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input
+            .bin_to_dec()
+            .u16()
+            .spaced()
+            .exact(4)
+            .unwrap()
+            .convert();
 
         assert_eq!(expected, actual);
     }
@@ -660,6 +945,32 @@ mod tests {
     }
 
     #[test]
+    fn bin_to_dec_variable_bits_u32_little_endian_spaced() {
+        let input: &str = &vec!["10", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input.bin_to_dec().u32().spaced().variable().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn bin_to_dec_exact_bits_u32_little_endian_spaced() {
+        let input: &str = &vec!["0010", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input
+            .bin_to_dec()
+            .u32()
+            .spaced()
+            .exact(4)
+            .unwrap()
+            .convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
     fn bin_to_dec_std_bits_u64_little_endian_compact() {
         let input: &str = &vec![
             "0000000000000000000000000000000000000000000000000000000000001010",
@@ -689,6 +1000,22 @@ mod tests {
     }
 
     #[test]
+    fn bin_to_dec_exact_bits_u64_little_endian_spaced() {
+        let input: &str = &vec!["0010", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input
+            .bin_to_dec()
+            .u64()
+            .spaced()
+            .exact(4)
+            .unwrap()
+            .convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
     fn bin_to_dec_std_bits_u128_little_endian_compact() {
         let input: &str = &vec![
             "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010",
@@ -713,6 +1040,22 @@ mod tests {
 
         let expected = vec![10, 12];
         let actual: Vec<_> = input.bin_to_dec().u128().spaced().convert();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn bin_to_dec_exact_bits_u128_little_endian_spaced() {
+        let input: &str = &vec!["0010", "1100"].join(" ");
+
+        let expected = vec![2, 12];
+        let actual: Vec<_> = input
+            .bin_to_dec()
+            .u128()
+            .spaced()
+            .exact(4)
+            .unwrap()
+            .convert();
 
         assert_eq!(expected, actual);
     }
