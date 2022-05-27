@@ -2,12 +2,9 @@ use std::marker::PhantomData;
 
 // Types
 
-// Investigate
-// https://stackoverflow.com/questions/59515668/how-does-the-iteratorcollect-function-work
 pub trait ToDec<T> {
     fn convert(self) -> T;
 }
-
 
 pub type DefaultBitAlignment = StandardBits<u32>;
 
