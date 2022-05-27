@@ -85,7 +85,7 @@ pub mod arg {
     impl Spaced {
         pub fn arg<'a>() -> Arg<'a> {
             Arg::new(Self::name())
-                .long(Self::name()).takes_value(false).about("Each binary number can be variable length and is parsed based the space character as a delimiter")
+                .long(Self::name()).takes_value(true).about("Each binary number can be variable length and is parsed based the space character as a delimiter")
         }
 
         pub fn value(matches: &ArgMatches) -> bool {

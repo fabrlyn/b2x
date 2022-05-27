@@ -50,10 +50,30 @@ impl ToDecCommand {
         let group_size = arg::GroupSize::value(matches);
 
         match (big_endian, signed, spaced, group_size) {
-            // LITTLE_ENDIAN, UNSIGNED, COMPACT, N
+            // u8
             (LITTLE_ENDIAN, UNSIGNED, COMPACT, 8) => {
                 output(input.bin_to_dec().u8().convert());
             }
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 1..=7) => {
+                output(input.bin_to_dec().u8().exact(group_size).unwrap().convert());
+            }
+            (BIG_ENDIAN, UNSIGNED, COMPACT, 8) => {
+                output(input.bin_to_dec().big_endian().u8().convert());
+            }
+            (BIG_ENDIAN, SIGNED, COMPACT, 8) => {
+                output(input.bin_to_dec().big_endian().i8().convert());
+            }
+            (BIG_ENDIAN, UNSIGNED, SPACED, 8) => {
+                output(input.bin_to_dec().u8().convert());
+            }
+            (BIG_ENDIAN, SIGNED, SPACED, 8) => {
+                output(input.bin_to_dec().i8().convert());
+            }
+
+            (LITTLE_ENDIAN, SIGNED, COMPACT, 8) => {
+                output(input.bin_to_dec().i8().convert());
+            }
+
             (LITTLE_ENDIAN, UNSIGNED, COMPACT, 16) => {
                 output(input.bin_to_dec().u16().convert());
             }
@@ -66,11 +86,48 @@ impl ToDecCommand {
             (LITTLE_ENDIAN, UNSIGNED, COMPACT, 128) => {
                 output(input.bin_to_dec().u128().convert());
             }
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 9..=15) => {
+                output(
+                    input
+                        .bin_to_dec()
+                        .u16()
+                        .exact(group_size)
+                        .unwrap()
+                        .convert(),
+                );
+            }
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 17..=31) => {
+                output(
+                    input
+                        .bin_to_dec()
+                        .u32()
+                        .exact(group_size)
+                        .unwrap()
+                        .convert(),
+                );
+            }
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 33..=63) => {
+                output(
+                    input
+                        .bin_to_dec()
+                        .u64()
+                        .exact(group_size)
+                        .unwrap()
+                        .convert(),
+                );
+            }
+            (LITTLE_ENDIAN, UNSIGNED, COMPACT, 65..=127) => {
+                output(
+                    input
+                        .bin_to_dec()
+                        .u128()
+                        .exact(group_size)
+                        .unwrap()
+                        .convert(),
+                );
+            }
 
             // LITLE_ENDIAN, UNSIGNED, SPACED, N
-            (LITTLE_ENDIAN, UNSIGNED, SPACED, 8) => {
-                output(input.bin_to_dec().u8().convert());
-            }
             (LITTLE_ENDIAN, UNSIGNED, SPACED, 16) => {
                 output(input.bin_to_dec().u16().convert());
             }
@@ -85,9 +142,6 @@ impl ToDecCommand {
             }
 
             // LITTLE_ENDIAN, SIGNED, COMPACT, N
-            (LITTLE_ENDIAN, SIGNED, COMPACT, 8) => {
-                output(input.bin_to_dec().i8().convert());
-            }
             (LITTLE_ENDIAN, SIGNED, COMPACT, 16) => {
                 output(input.bin_to_dec().i16().convert());
             }
@@ -102,9 +156,6 @@ impl ToDecCommand {
             }
 
             // BIG_ENDIAN, UNSIGNED, COMPACT, N
-            (BIG_ENDIAN, UNSIGNED, COMPACT, 8) => {
-                output(input.bin_to_dec().big_endian().u8().convert());
-            }
             (BIG_ENDIAN, UNSIGNED, COMPACT, 16) => {
                 output(input.bin_to_dec().big_endian().u16().convert());
             }
@@ -119,9 +170,6 @@ impl ToDecCommand {
             }
 
             // BIG_ENDIAN, SIGNED, COMPACT, N
-            (BIG_ENDIAN, SIGNED, COMPACT, 8) => {
-                output(input.bin_to_dec().big_endian().i8().convert());
-            }
             (BIG_ENDIAN, SIGNED, COMPACT, 16) => {
                 output(input.bin_to_dec().big_endian().i16().convert());
             }
@@ -136,9 +184,6 @@ impl ToDecCommand {
             }
 
             // LITLE_ENDIAN, SIGNED, SPACED, N
-            (LITTLE_ENDIAN, SIGNED, SPACED, 8) => {
-                output(input.bin_to_dec().i8().convert());
-            }
             (LITTLE_ENDIAN, SIGNED, SPACED, 16) => {
                 output(input.bin_to_dec().i16().convert());
             }
@@ -153,9 +198,6 @@ impl ToDecCommand {
             }
 
             // BIG_ENDIAN, UNSIGNED, SPACED, N
-            (BIG_ENDIAN, UNSIGNED, SPACED, 8) => {
-                output(input.bin_to_dec().u8().convert());
-            }
             (BIG_ENDIAN, UNSIGNED, SPACED, 16) => {
                 output(input.bin_to_dec().u8().convert());
             }
@@ -170,9 +212,6 @@ impl ToDecCommand {
             }
 
             // BIG_ENDIAN, UNSIGNED, SPACED, N
-            (BIG_ENDIAN, SIGNED, SPACED, 8) => {
-                output(input.bin_to_dec().i8().convert());
-            }
             (BIG_ENDIAN, SIGNED, SPACED, 16) => {
                 output(input.bin_to_dec().i16().convert());
             }
