@@ -3,6 +3,12 @@ use crate::logic::common::{
     VariableBits,
 };
 
+impl ToDec<u8> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
+    fn convert(self) -> u8 {
+        u8::from_str_radix(self.input, 2).unwrap()
+    }
+}
+
 impl ToDec<Vec<u8>> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
     fn convert(self) -> Vec<u8> {
         self.input
