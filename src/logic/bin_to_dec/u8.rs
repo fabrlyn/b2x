@@ -1,7 +1,20 @@
+use std::str::Chars;
+
 use crate::logic::common::{
     BigEndian, BinToDec, Compact, ExactBits, LittleEndian, Spaced, StandardBits, ToDec,
     VariableBits,
 };
+use itertools::Itertools;
+
+use super::common::{from_bits, AddBit};
+
+const BIT_SIZE: usize = 8;
+
+impl AddBit for u8 {
+    fn add_bit(self, index: usize) -> Self {
+        self | (1 << (BIT_SIZE - (index + 1)))
+    }
+}
 
 impl ToDec<u8> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
     fn convert(self) -> u8 {
@@ -12,15 +25,10 @@ impl ToDec<u8> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
 impl ToDec<Vec<u8>> for BinToDec<&str, StandardBits<u8>, LittleEndian, Compact> {
     fn convert(self) -> Vec<u8> {
         self.input
-            .as_bytes()
+            .chars()
             .chunks(8)
-            .map(|a| String::from_utf8(a.to_vec()))
-            .map(|a| a.map_err(|e| e.to_string()))
-            .map(|a| a.and_then(|b| validate_group_size(b, 8)))
-            .collect::<Result<Vec<_>, _>>()
-            .unwrap()
-            .iter()
-            .map(|s| u8::from_str_radix(s, 2).unwrap())
+            .into_iter() 
+            .map(|chars| from_bits(chars.))
             .collect::<Vec<_>>()
     }
 }
@@ -196,7 +204,10 @@ fn validate_group_size(source: String, target_size: u8) -> Result<String, String
 
 #[cfg(test)]
 mod tests {
-    use crate::logic::common::{BinToDecExt, ToDec};
+    use crate::logic::{
+        bin_to_dec::common::{from_bits, FromBitsError},
+        common::{BinToDecExt, ToDec},
+    };
 
     #[test]
     fn bin_to_dec_std_bits_u8_little_endian_compact() {
@@ -315,5 +326,24 @@ mod tests {
             .convert();
 
         assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn u8_from_bits() {
+        let inputs = vec![
+            ("0000000", Err(FromBitsError::InvalidSize)),
+            ("000000000", Err(FromBitsError::InvalidSize)),
+            ("00000000", Ok(0)),
+            ("00000001", Ok(1)),
+            ("00000010", Ok(2)),
+            ("00000011", Ok(3)),
+            ("00001011", Ok(11)),
+            ("11111111", Ok(u8::MAX)),
+        ];
+
+        inputs.into_iter().for_each(|(input, expected)| {
+            let actual = from_bits(input);
+            assert_eq!(expected, actual);
+        })
     }
 }

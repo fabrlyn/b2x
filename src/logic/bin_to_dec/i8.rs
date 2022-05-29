@@ -1,4 +1,4 @@
-use crate::logic::common::{BinToDec, Compact, LittleEndian, StandardBits, ToDec, BigEndian};
+use crate::logic::common::{BigEndian, BinToDec, Compact, LittleEndian, StandardBits, ToDec};
 
 impl ToDec<Vec<i8>> for BinToDec<&str, StandardBits<i8>, LittleEndian, Compact> {
     fn convert(self) -> Vec<i8> {
